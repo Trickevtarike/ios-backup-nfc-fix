@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ios-backup-doctor"
+version = "1.0.0"
+description = "Diagnose and repair local iOS backups that fail to restore"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["cryptography>=41.0"]
+keywords = ["ios", "iphone", "backup", "restore", "unicode", "nfc", "nfd"]
+
+[project.urls]
+Source = "https://github.com/Trickevtarike/ios-backup-nfc-fix"
+
+[project.scripts]
+ios-backup-doctor = "ios_backup_doctor.cli:main"
+
+[tool.setuptools]
+packages = ["ios_backup_doctor"]

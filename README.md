@@ -74,7 +74,16 @@ python3 check_collisions.py
 
 # 4. Repair — RUN THIS ON A COPY
 python3 fix_paths.py /path/to/your/backup-copy
+
+# Optional: see which core databases the backup actually holds
+python3 check_databases.py
 ```
+
+`check_databases.py` is for afterwards, when a restore looks incomplete. It
+reports whether messages, contacts, call history and similar were in the backup
+at all, or whether they lived in iCloud — iCloud-synced data is not part of a
+local backup and only returns once you sign in on the device. It reads sizes
+only and opens no database.
 
 Each script takes an optional backup directory; without one it discovers backups
 under `~/Library/Application Support/MobileSync/Backup` and asks which to use.

@@ -114,16 +114,27 @@ in UTF-8) becomes precomposed U+00E4 (2 bytes). The rendered name is identical.
 
 ## 7. Result after repair
 
-Same backup, same cable, same port, same device — only the manifest paths
-normalised to NFC:
+Same backup copy, same cable, same port, same device — the only change was
+normalising 1,094 manifest paths to NFC.
 
 ```
-Attempt 5: passed 27 % and continued well beyond the point where
-           attempts 3 and 4 both died.
+19:56  45 GB written
+20:00  54 GB
+20:20  95 GB
+20:42  128 GB
+20:52  137 GB   idevicebackup2 finished, no error
+       DeviceName restored from backup (was the factory default before)
 ```
 
-This isolates Unicode normalisation as the cause. Everything else was held
-constant.
+Attempt 5 completed in roughly one hour. It passed the 27 % mark where attempts
+3 and 4 both died, and finished with device settings applied — the restored
+device name is the marker that `--settings` took effect.
+
+The final 137 GB exceeds the backup's 129.7 GB payload because the figure
+includes iOS itself and caches.
+
+This isolates Unicode normalisation as the cause: everything else was held
+constant across the failing and succeeding runs.
 
 ## 8. What this rules out
 

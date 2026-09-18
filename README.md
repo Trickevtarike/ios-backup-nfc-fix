@@ -140,8 +140,23 @@ The two defects worth reporting are independent:
 
 ## Status
 
-Tested on one affected device: iPhone (iOS 26.6.2, build 23G90), restored from a
-macOS 15.7.9 host, 129.7 GB backup, 1,094 affected paths. Repair succeeded.
+Confirmed on one affected device.
+
+| | |
+|---|---|
+| Device | iPhone, iOS 26.6.2 (23G90) |
+| Host | macOS 15.7.9, Intel |
+| Backup | encrypted, 129.7 GB, 128,136 files |
+| Affected paths | 1,094 of 169,706 manifest entries |
+| Collisions from normalising | 0 |
+
+**Before the fix:** two independent restore attempts (Finder and libimobiledevice)
+aborted at 34–35 GB, both at the same file.
+
+**After normalising the paths to NFC:** the restore ran to completion in about an
+hour, with device settings restored. Nothing else was changed — same backup copy,
+same cable, same USB port, same device. That isolates Unicode normalisation as
+the cause.
 
 Reports from other configurations are welcome — please open an issue with the
 output of `check_collisions.py` (it prints counts only, no personal paths).

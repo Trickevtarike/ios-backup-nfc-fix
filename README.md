@@ -89,16 +89,35 @@ cd ~/Library/Application\ Support/MobileSync/Backup
 cp -c -R <UDID> <UDID>-workcopy      # -c = APFS clone, no extra disk space
 ```
 
-Then restore from the copy:
-
-```bash
-idevicebackup2 -u <DEVICE_UDID> -s <UDID>-workcopy \
-  -i restore --system --settings \
-  "$HOME/Library/Application Support/MobileSync/Backup"
-```
-
 `fix_paths.py` additionally saves the untouched `Manifest.db` as
 `Manifest.db.orig` inside the directory it modifies, so the change is reversible.
+
+## Restore with Finder, not with libimobiledevice
+
+Use `idevicebackup2` to *diagnose* — it is the only way to see the real error.
+But restore the repaired backup with **Finder**.
+
+`idevicebackup2 restore` writes the app *data* but does not reliably trigger
+reinstallation of the apps themselves from the App Store. iOS backups never
+contain app binaries. A restore via libimobiledevice therefore leaves you with
+full data containers and zero installed apps — verified here with
+`ideviceinstaller list --user` reporting 0 apps against 144 GB of restored data.
+Finder hands the app list to the App Store and the apps come back on their own
+once you sign in.
+
+Finder picks the backup by folder name, so make the repaired copy the active one:
+
+```bash
+cd ~/Library/Application\ Support/MobileSync/Backup
+mkdir -p ~/backup-copies-aside
+mv <other UDID folders> ~/backup-copies-aside/   # keep them, just out of the way
+mv <UDID>-workcopy <UDID>                        # repaired copy becomes active
+```
+
+All copies of the same backup share one date, so Finder's list cannot tell them
+apart — leaving exactly one in place removes the guesswork.
+
+Then: Finder → device → **Restore Backup…**
 
 ## Safety and privacy
 
@@ -153,10 +172,10 @@ Confirmed on one affected device.
 **Before the fix:** two independent restore attempts (Finder and libimobiledevice)
 aborted at 34–35 GB, both at the same file.
 
-**After normalising the paths to NFC:** the restore ran to completion in about an
-hour, with device settings restored. Nothing else was changed — same backup copy,
-same cable, same USB port, same device. That isolates Unicode normalisation as
-the cause.
+**After normalising the paths to NFC:** the restore ran to completion, twice —
+first with libimobiledevice, then with Finder (68 minutes, 137 GB, no errors in
+the unified log). Nothing else was changed: same backup copy, same cable, same
+USB port, same device. That isolates Unicode normalisation as the cause.
 
 Reports from other configurations are welcome — please open an issue with the
 output of `check_collisions.py` (it prints counts only, no personal paths).

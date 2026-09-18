@@ -153,3 +153,28 @@ measurement:
 
 The `Device detached` log line is the strongest red herring: it is emitted
 *after* the restore fails, when the device reboots.
+
+## 9. Confirmed again via Finder
+
+The repaired backup was restored a second time, using Finder rather than
+libimobiledevice, to confirm the fix on Apple's own path:
+
+```
+21:39    7 GB   start
+21:55   34 GB   <- both earlier attempts died here
+22:45  137 GB
+22:47   AppleMobileBackup exited
+
+unified log, predicate process == "AppleMobileBackup",
+filtered for error/stopWithError/MBErrorDomain/detach:
+  (no matches)
+```
+
+68 minutes, no errors, device name restored from the backup.
+
+One practical difference between the two paths is worth recording: after the
+libimobiledevice restore, `ideviceinstaller list --user` reported **0 apps**
+despite 144 GB of restored data and 50.8 GB of restored photos. App data
+containers were present, the apps themselves were not. iOS backups do not
+contain app binaries; Finder triggers their reinstallation from the App Store,
+libimobiledevice does not. Diagnose with libimobiledevice, restore with Finder.

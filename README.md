@@ -1,0 +1,151 @@
+# iOS backup restore fails at a fixed point — Unicode normalisation
+
+**Symptom:** Restoring a local (Finder/iTunes) iPhone backup fails partway through,
+always at the same point, with no useful error message. Finder says only:
+
+> An error occurred and the backup could not be restored.
+
+**Cause:** Paths in the backup manifest that contain non-ASCII characters
+(umlauts, accents) are stored in **decomposed** Unicode form (NFD: `a` + combining
+diaeresis). iOS resolves them in **precomposed** form (NFC: `ä`), fails to find the
+staging path, and aborts the entire restore at the first such file.
+
+**Fix:** Normalise the affected paths in the manifest to NFC. No file is removed,
+no content is altered, and the readable name does not change.
+
+---
+
+## Is this your problem?
+
+Likely, if all of the following hold:
+
+- the restore fails at **the same percentage every time** (deterministic, not flaky)
+- your backup passes an integrity check
+- the password is correct and the iOS version is not older than the backup's
+- the device has enough free space
+- your data contains files or folders with **umlauts or accents** in their names
+
+If the failure point moves around between attempts, this is *not* your problem —
+that pattern points at cable, port or power.
+
+## Getting the real error message
+
+Finder hides the error. `libimobiledevice` shows it:
+
+```bash
+brew install libimobiledevice
+
+idevicebackup2 -u <DEVICE_UDID> -i restore --system --settings \
+  "$HOME/Library/Application Support/MobileSync/Backup"
+```
+
+An affected backup produces:
+
+```
+[==============                                    ]  27% Finished
+ErrorCode 2: _restoreRegularFiles:size: rename error: No such file or directory (2)
+  at path ".../File Provider Storage/music/<name with é>/<track>.mp3"
+Restore Failed (Error Code 2).
+```
+
+The path in that message will contain a non-ASCII character.
+
+## Usage
+
+Requires Python 3.9+ and `cryptography`:
+
+```bash
+pip3 install cryptography
+```
+
+macOS protects the backup folder. Grant your terminal **Full Disk Access**
+(System Settings → Privacy & Security → Full Disk Access), then restart it —
+otherwise the folder appears empty rather than raising a permission error.
+
+```bash
+# 1. Rule out the password (offline, no device needed)
+python3 verify_password.py
+
+# 2. Confirm the backup is actually complete
+python3 check_integrity.py
+
+# 3. Check how many paths are affected and whether repair is safe
+python3 check_collisions.py
+
+# 4. Repair — RUN THIS ON A COPY
+python3 fix_paths.py /path/to/your/backup-copy
+```
+
+Each script takes an optional backup directory; without one it discovers backups
+under `~/Library/Application Support/MobileSync/Backup` and asks which to use.
+
+### Make a copy first
+
+Backups live in `~/Library/Application Support/MobileSync/Backup/<UDID>`. On APFS
+a copy is cheap and instant:
+
+```bash
+cd ~/Library/Application\ Support/MobileSync/Backup
+cp -c -R <UDID> <UDID>-workcopy      # -c = APFS clone, no extra disk space
+```
+
+Then restore from the copy:
+
+```bash
+idevicebackup2 -u <DEVICE_UDID> -s <UDID>-workcopy \
+  -i restore --system --settings \
+  "$HOME/Library/Application Support/MobileSync/Backup"
+```
+
+`fix_paths.py` additionally saves the untouched `Manifest.db` as
+`Manifest.db.orig` inside the directory it modifies, so the change is reversible.
+
+## Safety and privacy
+
+- The backup password is read interactively, never stored, never transmitted
+- Only **metadata** is decrypted (the manifest, i.e. the file index) — file
+  contents are never decrypted, copied or inspected
+- `fix_paths.py` is the only script that writes; the others are read-only
+- Nothing contacts the network
+
+The decrypted manifest contains every file path on the device. The scripts keep
+it in a temporary directory and delete it on exit. If you produce one yourself
+for debugging, delete it afterwards.
+
+## Why this is hard to diagnose
+
+The macOS log records the device **rebooting after** the failure:
+
+```
+AMPDevicesAgent  Device detached: AMDevice {UDID = ...}
+kernel           en9 detaching
+```
+
+which looks exactly like a failing cable or insufficient bus power. That symptom
+is a consequence, not the cause. See [docs/EVIDENCE.md](docs/EVIDENCE.md) for the
+full measurement trail, including every hypothesis that was tested and excluded.
+
+## Reporting this to Apple
+
+See [docs/APPLE_BUG_REPORT.md](docs/APPLE_BUG_REPORT.md) for a prepared report.
+File it via [Feedback Assistant](https://feedbackassistant.apple.com) under
+**iOS → Backup and Restore**.
+
+The two defects worth reporting are independent:
+
+1. A restore aborts completely because of one unresolvable path, instead of
+   skipping the file and reporting it at the end
+2. Finder surfaces no error code and no file name, while the underlying API
+   provides both
+
+## Status
+
+Tested on one affected device: iPhone (iOS 26.6.2, build 23G90), restored from a
+macOS 15.7.9 host, 129.7 GB backup, 1,094 affected paths. Repair succeeded.
+
+Reports from other configurations are welcome — please open an issue with the
+output of `check_collisions.py` (it prints counts only, no personal paths).
+
+## Licence
+
+MIT — see [LICENSE](LICENSE).

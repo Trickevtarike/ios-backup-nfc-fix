@@ -61,6 +61,50 @@ into place fails — and the entire restore is discarded over one file.
 **The fix** is to normalise those paths. Nothing is deleted, no content changes,
 and the readable name stays exactly the same.
 
+## Error messages and search terms
+
+If you arrived here from a search engine, these are the exact messages this
+addresses. The wording is what Finder shows; the codes below it are
+language-independent and the most precise thing to search for.
+
+**Finder / iTunes, German:**
+
+> Ein Fehler ist aufgetreten und das Backup kann nicht wiederhergestellt werden.
+
+**Finder / iTunes, English:**
+
+> An error occurred and the backup could not be restored.
+
+**The real error, visible only through `idevicebackup2`:**
+
+```
+ErrorCode 2: _restoreRegularFiles:size: rename error: No such file or directory (2)
+MBErrorDomain/2
+NSPOSIXErrorDomain/2
+Restore Failed (Error Code 2).
+```
+
+**In the macOS unified log:**
+
+```
+_stopWithError: Error Domain=MBErrorDomain Code=200
+Device detached: AMDevice {UDID = ...}
+Error erasing device: -10
+```
+
+Note that `MBErrorDomain Code=200` is the generic "restore failed" bucket and
+does not by itself indicate this bug, and that `Device detached` is emitted
+*after* the failure — it is the device rebooting, not the cause.
+
+Phrases people search with: *iPhone Backup lässt sich nicht wiederherstellen ·
+Backup kann nicht wiederhergestellt werden · iPhone backup restore failed ·
+backup restore stuck at 27 percent · iTunes backup restore fails · restore
+aborts partway through · iPhone Wiederherstellung bricht ab*
+
+Only German and English wordings are verified here. If Finder shows this in
+another language on your system, please open an issue with the exact text — it
+helps others find this.
+
 ## Usage
 
 ```bash

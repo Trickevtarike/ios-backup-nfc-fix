@@ -19,6 +19,29 @@ That is it. One command, one password prompt, one clear answer.
 > never on your only backup, and verify the result yourself before relying on
 > it. See [Liability](#liability).
 
+## About to erase your device? Check the backup first
+
+If you are here because you *have* to erase an iPhone — a forgotten passcode, a
+device locked behind ever longer retry delays, a repair, a handover — run
+`diagnose` **before** you erase it. Not after.
+
+An affected backup gives no warning in advance. You erase the device, start the
+restore, and it fails partway through with a message that names neither a reason
+nor a file. By then the device is empty and that backup is your only copy.
+
+Checking takes a minute. Repairing takes another. The restore then works on the
+first attempt instead of the fifth.
+
+**Secure these two things before erasing:**
+
+- **The backup password.** It is *not* the device passcode — it is a separate
+  password, set once when encrypted backups were enabled, and easily forgotten
+  because nothing ever asks for it. Without it the backup cannot be opened by
+  anyone, Apple included. Put it in a password manager now, alongside the device
+  passcode.
+- **The eSIM.** Move it to another device first, or accept that only the carrier
+  can bring it back — see [Getting your eSIM back](#getting-your-esim-back).
+
 ## The problem this solves
 
 Restoring a local (Finder/iTunes) backup aborts partway through — always at the

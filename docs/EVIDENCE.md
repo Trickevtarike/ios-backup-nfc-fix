@@ -1,5 +1,29 @@
 # Evidence
 
+## 0. How this situation arises
+
+Worth stating first, because it shapes the stakes: the affected user had not
+chosen to erase the device. A forgotten passcode had locked it behind
+escalating retry delays — 5 minutes, 15 minutes, 1 hour, 3 hours — which leaves
+erasing as the only remaining option.
+
+That is the case in which this bug does the most damage. The device *must* be
+wiped, so the backup is not a safety net any more but the only copy, and the
+restore has to work. It then failed four times over two days, with no
+indication of why.
+
+Had the backup been checked before the device was erased, the affected paths
+would have been found and corrected in about two minutes, and the restore would
+have succeeded on the first attempt. That is the single most useful conclusion
+from this whole investigation, and the reason the README leads with it.
+
+One further note on passwords: the backup password is not the device passcode.
+It is a separate secret, set once when encrypted backups are enabled, and never
+asked for again — so it is easily forgotten. Here it was still known, which is
+the only reason 129.7 GB were recoverable at all. An encrypted backup whose
+password is lost cannot be opened by anyone, Apple included.
+
+
 All logs below are real output from an affected machine, captured on
 2026-09-18 during four consecutive restore attempts of the same backup.
 

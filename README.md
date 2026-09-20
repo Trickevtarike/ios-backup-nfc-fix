@@ -67,13 +67,28 @@ If you arrived here from a search engine, these are the exact messages this
 addresses. The wording is what Finder shows; the codes below it are
 language-independent and the most precise thing to search for.
 
-**Finder / iTunes, German:**
+The wording that matches this bug most closely, because it names what actually
+happens — individual files cannot be written:
 
-> Ein Fehler ist aufgetreten und das Backup kann nicht wiederhergestellt werden.
+**English:**
 
-**Finder / iTunes, English:**
+> Could not restore the iPhone “…” because some files could not be restored from
+> the backup.
 
-> An error occurred and the backup could not be restored.
+**German:**
+
+> Das iPhone „…“ konnte nicht wiederhergestellt werden, da einige Dateien nicht
+> aus dem Backup wiederhergestellt werden konnten.
+
+Generic variants appear as well, depending on where the restore fails:
+
+> Could not restore the iPhone “…” because an error occurred.
+> The iPhone “…” could not be restored.
+> Could not restore the iPhone “…” because an unknown error occurred (2).
+
+**[docs/ERROR_MESSAGES.md](docs/ERROR_MESSAGES.md) has all four messages in 33
+languages**, extracted from macOS itself rather than translated here, so they
+match character for character what Finder displays.
 
 **The real error, visible only through `idevicebackup2`:**
 
@@ -101,9 +116,8 @@ Backup kann nicht wiederhergestellt werden · iPhone backup restore failed ·
 backup restore stuck at 27 percent · iTunes backup restore fails · restore
 aborts partway through · iPhone Wiederherstellung bricht ab*
 
-Only German and English wordings are verified here. If Finder shows this in
-another language on your system, please open an issue with the exact text — it
-helps others find this.
+All wordings come from Apple's own localisation table in
+`AMPDevices.framework`, so none of them is a guess.
 
 ## Usage
 

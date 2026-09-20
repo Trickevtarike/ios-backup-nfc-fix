@@ -100,22 +100,27 @@ def check_normalisation(entries: list[FileEntry]) -> Normalisation:
     return result
 
 
-# Databases worth reporting on, as (label, path fragment).
+# Databases worth reporting on: (label, path fragment, is_single_database).
+# For a real database, being nearly empty is a meaningful signal that the data
+# lives in iCloud. For a collection of files it is not -- few voice memos look
+# exactly like voice memos synced elsewhere -- so those are never guessed at.
 CORE_DATABASES = [
-    ("Messages", "Library/SMS/sms.db"),
-    ("Message attachments", "Library/SMS/Attachments"),
-    ("Contacts", "Library/AddressBook/AddressBook.sqlitedb"),
-    ("Contact images", "Library/AddressBook/AddressBookImages.sqlitedb"),
-    ("Call history", "Library/CallHistoryDB/CallHistory.storedata"),
-    ("Notes", "NoteStore.sqlite"),
-    ("Calendar", "Library/Calendar/Calendar.sqlitedb"),
-    ("Photos database", "Media/PhotoData/Photos.sqlite"),
-    ("Voice memos", "Recordings/"),
-    ("Safari history", "Library/Safari/History.db"),
-    ("WhatsApp", "ChatStorage.sqlite"),
-    ("Health", "Health/healthdb.sqlite"),
+    ("Messages", "Library/SMS/sms.db", True),
+    ("Message attachments", "Library/SMS/Attachments", False),
+    ("Contacts", "Library/AddressBook/AddressBook.sqlitedb", True),
+    ("Contact images", "Library/AddressBook/AddressBookImages.sqlitedb", True),
+    ("Call history", "Library/CallHistoryDB/CallHistory.storedata", True),
+    ("Notes", "NoteStore.sqlite", True),
+    ("Calendar", "Library/Calendar/Calendar.sqlitedb", True),
+    ("Photos database", "Media/PhotoData/Photos.sqlite", True),
+    ("Voice memos", "Recordings/", False),
+    ("Safari history", "Library/Safari/History.db", True),
+    ("WhatsApp", "ChatStorage.sqlite", True),
+    ("Health", "Health/healthdb.sqlite", True),
 ]
 
+# An empty database is unambiguous. A small one only hints, so the threshold
+# applies to single databases and the wording stays conditional.
 ICLOUD_THRESHOLD = 200 * 1024
 
 
@@ -127,7 +132,7 @@ def check_databases(backup: Backup, entries: list[FileEntry]) -> list[tuple[str,
     but it also cannot be recovered from this backup.
     """
     results = []
-    for label, needle in CORE_DATABASES:
+    for label, needle, single in CORE_DATABASES:
         matches = [e for e in entries if e.is_file and needle in e.relative_path]
         if not matches:
             results.append((label, 0, "absent"))
@@ -135,9 +140,9 @@ def check_databases(backup: Backup, entries: list[FileEntry]) -> list[tuple[str,
         total = sum(e.size for e in matches
                     if backup.blob_path(e.file_id).exists())
         if total == 0:
-            results.append((label, 0, "icloud"))
-        elif total < ICLOUD_THRESHOLD:
-            results.append((label, total, "icloud"))
+            results.append((label, 0, "empty"))
+        elif single and total < ICLOUD_THRESHOLD:
+            results.append((label, total, "sparse"))
         else:
             results.append((label, total, "present"))
     return results

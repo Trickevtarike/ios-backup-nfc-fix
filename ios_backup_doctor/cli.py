@@ -138,9 +138,14 @@ def cmd_diagnose(args) -> int:
         if args.databases:
             ui.heading("What data does the backup hold?")
             for label, size, state in check_databases(backup, entries):
-                symbol = {"present": ui.OK, "icloud": ui.WARN, "absent": ui.INFO}[state]
-                note = {"present": "", "icloud": "lived in iCloud, not in this backup",
-                        "absent": "not installed / nothing stored locally"}[state]
+                symbol = {"present": ui.OK, "sparse": ui.WARN,
+                          "empty": ui.WARN, "absent": ui.INFO}[state]
+                note = {
+                    "present": "",
+                    "sparse": "little data -- little content, or synced via iCloud",
+                    "empty": "empty -- this data was not in the backup",
+                    "absent": "not installed / nothing stored locally",
+                }[state]
                 ui.item(symbol, label,
                         ui.human_bytes(size) if size else "--", note)
 
@@ -153,12 +158,21 @@ def cmd_diagnose(args) -> int:
         return 1
 
     if not norm.affected:
-        ui.verdict(ui.OK, "This backup is not affected by the NFC restore bug.",
-                   "Every path is already normalised, and the backup is complete.\n"
-                   "If your restore still fails, the cause lies elsewhere. Run the\n"
-                   "restore with idevicebackup2 to see the real error message:\n\n"
-                   "  idevicebackup2 -u <UDID> -i restore --system --settings \\\n"
-                   '    "$HOME/Library/Application Support/MobileSync/Backup"')
+        repaired = (backup.path / "Manifest.db.orig").exists()
+        if repaired:
+            ui.verdict(ui.OK, "This backup has already been repaired.",
+                       "Every path is normalised and the backup is complete. The presence of\n"
+                       "Manifest.db.orig shows this backup was processed by 'fix' before --\n"
+                       "so it was affected once and is not any more.\n\n"
+                       "Restore it with Finder rather than idevicebackup2: backups contain no\n"
+                       "app binaries, and only Finder has the App Store reinstall your apps.")
+        else:
+            ui.verdict(ui.OK, "This backup is not affected by the NFC restore bug.",
+                       "Every path is already normalised, and the backup is complete.\n"
+                       "If your restore still fails, the cause lies elsewhere. Run the\n"
+                       "restore with idevicebackup2 to see the real error message:\n\n"
+                       "  idevicebackup2 -u <UDID> -i restore --system --settings \\\n"
+                       '    "$HOME/Library/Application Support/MobileSync/Backup"')
         return 0
 
     if not norm.repairable:

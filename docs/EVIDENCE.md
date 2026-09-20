@@ -191,8 +191,12 @@ initially looked like a restore failure:
   not.
 - **Messages and Contacts appeared empty** — but `sms.db` (10 MB) and
   `AddressBook.sqlitedb` (29.5 MB) were verifiably in the backup and restored.
-  They surfaced once the device was signed in to its Apple Account. Only Notes
-  were genuinely absent from the backup (140 KB, iCloud-synced).
+  They surfaced once the device was signed in to its Apple Account.
+
+  A correction to an earlier reading: Notes were first reported as iCloud-only
+  because the check looked at the legacy path `Library/Notes/notes.sqlite`
+  (140 KB). iOS stores them in `NoteStore.sqlite`, which held 660 KB — they
+  were in the backup all along.
 - **eSIM gone** — expected: eSIM profiles are bound to device and carrier and
   are never part of a backup. The physical SIM in the same device was
   unaffected and reported `kCTSIMSupportSIMStatusReady` throughout.
@@ -202,3 +206,31 @@ initially looked like a restore failure:
 The lesson for diagnosis: do not evaluate a restore before the device has been
 signed in and given time on power and Wi-Fi. Several of these look identical to
 data loss and are not.
+
+## 11. Verifying the tool against these measurements
+
+The restructured CLI was run against the repaired backup and reproduced every
+figure measured earlier with the standalone scripts:
+
+```
+Files                    128,136      (unchanged)
+Payload expected         129.67 GB    (unchanged)
+Payload on disk          129.37 GB    (unchanged)
+Missing files                  0
+Truncated files                0
+Empty by design           26,235      (unchanged)
+Manifest entries         169,706      (unchanged)
+Decomposed (NFD) paths         0      (was 1,094 before the repair)
+Collisions                     0
+```
+
+The run also exposed two weaknesses that were then fixed:
+
+- The "nearly empty means iCloud" heuristic was applied to path prefixes that
+  match a *collection of files* rather than one database. Few voice memos look
+  identical to voice memos stored elsewhere, so the tool no longer guesses
+  there; the threshold now applies only to single databases and the wording is
+  conditional.
+- A verdict of "0 decomposed paths" conflated two different situations: a
+  backup that was never affected, and one that has been repaired. The presence
+  of `Manifest.db.orig` distinguishes them, and the tool now says which.

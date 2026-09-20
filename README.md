@@ -100,7 +100,7 @@ failed restore. None of the following are defects:
 
 | Missing afterwards | Why | What to do |
 |---|---|---|
-| **eSIM / mobile plan** | eSIM profiles are cryptographically bound to device and carrier and are deliberately never included in a backup — otherwise a mobile identity could be cloned by restoring a backup onto another device | Settings → Cellular → Add eSIM sometimes offers the previous plan. Otherwise ask the carrier for a new profile; the number stays the same. Keep your EID ready (Settings → General → About → EID) |
+| **eSIM / mobile plan** | Bound to device and carrier, deliberately never in a backup — otherwise restoring onto another device would clone a mobile identity | See [Getting your eSIM back](#getting-your-esim-back) below |
 | **Apps** | Backups hold app *data*, never app binaries | Sign in with your Apple Account; Finder-restored devices reinstall them automatically. After an `idevicebackup2` restore, fetch them from App Store → Account → Purchased |
 | **iCloud-synced data** | Notes, and Messages or Contacts when iCloud sync is on, live in iCloud and are not part of a local backup | Returns on its own after signing in. `diagnose` shows which databases were actually in the backup |
 | **Wallpaper and lock screen** | Since iOS 16 these hang off the iCloud lock-screen configuration | Set again manually |
@@ -111,6 +111,34 @@ The practical consequence: judge a restore only **after** signing in with your
 Apple Account and letting the device sit on power and Wi-Fi for a while. A
 freshly restored device looks alarmingly empty before that — no apps, a bare
 home screen, an empty Messages app — while the data is already on disk.
+
+### Getting your eSIM back
+
+This catches people out, because it looks like the restore lost it. It did not —
+erasing the device did, and no backup has ever contained an eSIM profile.
+
+**Before you erase a device**, if you still can: move the eSIM off it first.
+Settings → Cellular → your plan → **Transfer to another device**, or check
+whether your carrier's app offers a transfer. Once the device is erased the
+profile is gone and only the carrier can issue a new one.
+
+**After the fact**, in this order:
+
+1. **Settings → Cellular → Add eSIM.** Some carriers offer the previous plan
+   for direct reactivation here. If yours does, you are done in a minute.
+2. **Your carrier's app.** Many have "reinstall eSIM" or "transfer to new
+   device" as self-service.
+3. **Your online account.** Often a fresh QR code can be generated there.
+4. **Support line or store.** Say plainly: *the iPhone was erased, the eSIM
+   profile is gone, I need a new profile for the same number.*
+
+Have your **EID** ready — Settings → General → About → EID. Most carriers ask
+for it.
+
+Worth knowing: your phone number is not affected, only the profile is reissued.
+Most carriers do this free of charge, some charge a small fee, and a few limit
+how often a profile may be reinstalled — if you hit that limit, support can
+lift it. A physical SIM in the same device is entirely unaffected.
 
 ## Is this actually my problem?
 

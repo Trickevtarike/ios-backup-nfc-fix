@@ -182,6 +182,39 @@ Likely, if all of these hold:
 If the failure point moves around between attempts, this is *not* your problem —
 that pattern points at cable, port or power. `diagnose` says so explicitly.
 
+### Where the bad paths come from
+
+Measured on the affected backup, the 1,094 decomposed paths did not originate
+from iOS itself. They were almost all imported from outside:
+
+| Share of affected paths | Origin |
+|---|---|
+| 92 % | a third-party Android-to-iOS file transfer app |
+| 6 % | a commercial cloud storage provider's Files integration |
+| 1 % | the iCloud Drive container (`Library/Mobile Documents`) |
+| 1 % | a browser, a fitness app, Apple's local file provider |
+
+By file type: 778 `.mp3` and 212 `.m4a` — an imported music collection — plus a
+handful of PDFs, images, documents and even `.apk` files, Android installers
+that came along for the ride.
+
+Two details matter for judging your own risk:
+
+**The same app produced both forms.** 1,004 of its paths were decomposed, but 89
+were already correct. These apps do not encode wrongly on principle — they pass
+through whatever the source system handed them, without normalising it. Apple's
+own apps were correct throughout.
+
+**iOS's own data was essentially untouched.** Photos, Messages, Contacts,
+Calendar — none of it was affected. The bug hits files that entered the device
+from elsewhere.
+
+So you are at elevated risk if you have moved files onto your iPhone from
+another system — an Android phone, a PC, a cloud sync — and those files have
+umlauts or accents in their names. The characters seen here were mostly French
+accents (`é` by a wide margin, then `à è ç î ï ê`) and German umlauts
+(`ä ö ü`), but any non-ASCII character can be affected.
+
 ### Seeing the real error yourself
 
 ```bash

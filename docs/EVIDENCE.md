@@ -258,3 +258,64 @@ The run also exposed two weaknesses that were then fixed:
 - A verdict of "0 decomposed paths" conflated two different situations: a
   backup that was never affected, and one that has been repaired. The presence
   of `Manifest.db.orig` distinguishes them, and the tool now says which.
+
+## 12. Where the decomposed paths came from
+
+Read from the preserved original manifest (`Manifest.db.orig`) after the
+repair, so the pre-repair state is still verifiable.
+
+```
+Entries in original manifest:  169,706
+Of those decomposed (NFD):       1,094
+
+By domain
+     1,004   third-party Android-to-iOS file transfer app   (92 %)
+        65   commercial cloud storage provider              ( 6 %)
+        14   HomeDomain / Library/Mobile Documents          (iCloud Drive)
+         5   Apple local file provider
+         4   third-party browser
+         2   third-party fitness app
+
+By top-level path
+     1,074   File Provider Storage
+        14   Library
+         6   Documents
+
+By file type
+       778   .mp3          49   .icloud        6   .png
+       212   .m4a          24   .pdf           4   .docx
+         8   .apk           2   .mp4           2   .gpx
+```
+
+An initial hypothesis — that macOS was the source, since it has traditionally
+used NFD for filenames — does not survive this measurement. Only the 14 paths
+in the iCloud Drive container are consistent with it. Over 90 % arrived through
+one third-party file transfer app, together with Android installer packages,
+which points at an import from an Android device rather than from the Mac.
+
+### The control group
+
+```
+106 paths containing non-ASCII characters were already NFC
+ of which 89 sat in the same third-party app's domain
+```
+
+This is the most informative figure in the set. The same app produced both
+forms, so it does not encode incorrectly by design — it passes through whatever
+normalisation the source filesystem supplied. Apple's own apps were NFC
+throughout, and iOS's own data (Photos, Messages, Contacts, Calendar) contained
+no decomposed paths at all.
+
+### Decomposed characters observed
+
+```
+1,690   e + U+0301  ->  é          36   a + U+0308  ->  ä
+   54   E + U+0301  ->  É          33   u + U+0308  ->  ü
+   41   a + U+0300  ->  à          29   i + U+0302  ->  î
+   36   C + U+0327  ->  Ç          26   o + U+0308  ->  ö
+   24   c + U+0327  ->  ç          24   e + U+0300  ->  è
+   19   i + U+0308  ->  ï          14   e + U+0302  ->  ê
+```
+
+Each of these costs one byte more decomposed than precomposed, which is why
+affected paths shrink by exactly the number of accented characters they carry.

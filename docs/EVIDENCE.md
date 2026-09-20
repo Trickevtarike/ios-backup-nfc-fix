@@ -178,3 +178,27 @@ despite 144 GB of restored data and 50.8 GB of restored photos. App data
 containers were present, the apps themselves were not. iOS backups do not
 contain app binaries; Finder triggers their reinstallation from the App Store,
 libimobiledevice does not. Diagnose with libimobiledevice, restore with Finder.
+
+## 10. What a successful restore still leaves missing
+
+Observed after the completed restore, and worth recording because each one
+initially looked like a restore failure:
+
+- **0 installed apps** — `ideviceinstaller list --user` returned nothing while
+  the device held 144 GB of restored data, 50.8 GB of it photos. App data
+  containers were fully present; the binaries were not, because backups do not
+  contain them. Finder reinstalls them via the App Store, libimobiledevice does
+  not.
+- **Messages and Contacts appeared empty** — but `sms.db` (10 MB) and
+  `AddressBook.sqlitedb` (29.5 MB) were verifiably in the backup and restored.
+  They surfaced once the device was signed in to its Apple Account. Only Notes
+  were genuinely absent from the backup (140 KB, iCloud-synced).
+- **eSIM gone** — expected: eSIM profiles are bound to device and carrier and
+  are never part of a backup. The physical SIM in the same device was
+  unaffected and reported `kCTSIMSupportSIMStatusReady` throughout.
+- **Wallpaper and lock screen not restored** — iOS 16+ keeps these with the
+  iCloud lock-screen configuration.
+
+The lesson for diagnosis: do not evaluate a restore before the device has been
+signed in and given time on power and Wi-Fi. Several of these look identical to
+data loss and are not.

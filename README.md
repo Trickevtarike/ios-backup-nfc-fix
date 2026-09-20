@@ -93,6 +93,25 @@ mv <UDID>-workcopy <UDID>                   # the repaired copy becomes active
 
 Then: Finder → device → **Restore Backup…**
 
+## What a backup does not restore
+
+A successful restore still leaves gaps, and they are easy to mistake for a
+failed restore. None of the following are defects:
+
+| Missing afterwards | Why | What to do |
+|---|---|---|
+| **eSIM / mobile plan** | eSIM profiles are cryptographically bound to device and carrier and are deliberately never included in a backup — otherwise a mobile identity could be cloned by restoring a backup onto another device | Settings → Cellular → Add eSIM sometimes offers the previous plan. Otherwise ask the carrier for a new profile; the number stays the same. Keep your EID ready (Settings → General → About → EID) |
+| **Apps** | Backups hold app *data*, never app binaries | Sign in with your Apple Account; Finder-restored devices reinstall them automatically. After an `idevicebackup2` restore, fetch them from App Store → Account → Purchased |
+| **iCloud-synced data** | Notes, and Messages or Contacts when iCloud sync is on, live in iCloud and are not part of a local backup | Returns on its own after signing in. `diagnose` shows which databases were actually in the backup |
+| **Wallpaper and lock screen** | Since iOS 16 these hang off the iCloud lock-screen configuration | Set again manually |
+| **Device passcode, Face ID** | Never restored, by design | Set up again |
+| **Apple Account sign-in** | Credentials are never in a backup | Sign in manually |
+
+The practical consequence: judge a restore only **after** signing in with your
+Apple Account and letting the device sit on power and Wi-Fi for a while. A
+freshly restored device looks alarmingly empty before that — no apps, a bare
+home screen, an empty Messages app — while the data is already on disk.
+
 ## Is this actually my problem?
 
 Likely, if all of these hold:

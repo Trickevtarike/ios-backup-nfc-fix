@@ -192,6 +192,22 @@ output of `diagnose`, which prints counts and domains but no personal paths.
 2. Finder surfaces no error code and no file name, while the underlying API
    provides both
 
+## Disclaimer
+
+**Not affiliated with, authorised by, or endorsed by Apple Inc.** Apple, iPhone,
+iOS, Finder and iTunes are trademarks of their respective owners and are used
+here only to describe what this software is compatible with.
+
+**Use only on backups you own.** The tool needs your own backup password and
+cannot open anyone else's backup. It decrypts only the manifest — the file
+index — to inspect and correct path encoding; it never decrypts file contents
+and never connects to the network.
+
+**`fix` modifies a backup in place.** Work on a copy. The original manifest is
+kept as `Manifest.db.orig`, but a backup is often the only copy of irreplaceable
+data — treat it accordingly. This software comes without any warranty; see the
+licence for the full disclaimer.
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE).

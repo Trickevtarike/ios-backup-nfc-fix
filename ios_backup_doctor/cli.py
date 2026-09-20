@@ -218,7 +218,8 @@ def cmd_fix(args) -> int:
                 "this backup was processed before")
 
     print()
-    print(ui.yellow("  This modifies the backup in place. Work on a copy, not your only one."))
+    print(ui.yellow("  This modifies the backup in place, at your own risk."))
+    print(ui.yellow("  Work on a copy -- never on the only copy of data you cannot recreate."))
     if not args.yes:
         answer = input(f"\n  Normalise {norm.denormalised:,} paths? [y/N] ").strip().lower()
         if answer != "y":

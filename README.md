@@ -13,6 +13,12 @@ That is it. One command, one password prompt, one clear answer.
 
 ---
 
+> [!WARNING]
+> **Use at your own risk.** This software modifies backup files. A backup is
+> often the only copy of data that cannot be recreated. Always work on a copy,
+> never on your only backup, and verify the result yourself before relying on
+> it. See [Liability](#liability).
+
 ## The problem this solves
 
 Restoring a local (Finder/iTunes) backup aborts partway through — always at the
@@ -235,6 +241,28 @@ and never connects to the network.
 kept as `Manifest.db.orig`, but a backup is often the only copy of irreplaceable
 data — treat it accordingly. This software comes without any warranty; see the
 licence for the full disclaimer.
+
+## Liability
+
+This software is provided free of charge, as is, and **without any warranty of
+any kind** — express or implied, including but not limited to warranties of
+merchantability, fitness for a particular purpose and non-infringement.
+
+**You alone are responsible** for how you use it and for the data you use it
+on. That includes:
+
+- keeping an untouched copy of any backup before running `fix` on it
+- verifying yourself, before and after, that your backup is intact
+- deciding whether to rely on a restored device
+
+**No liability is accepted** for data loss, failed or incomplete restores,
+unusable backups, lost time, or any other direct or indirect damage arising
+from the use of this software — to the fullest extent permitted by applicable
+law. Where local law does not permit such an exclusion, liability is limited to
+the minimum that law allows.
+
+This is not a product and comes with no support obligation. Issues and reports
+are welcome, but nobody is obliged to answer them or to fix anything.
 
 ## Licence
 
